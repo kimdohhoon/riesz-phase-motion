@@ -1,0 +1,93 @@
+# Motion That Survives the Dark — Code
+
+Code for *"Motion That Survives the Dark: Illumination-Robust Riesz-Phase Motion for
+Frozen Foundation-Model Video Recognition"* (ACCV 2026).
+
+A frozen CLIP appearance stream (middle frame) is paired with a **training-free
+Riesz-phase motion stream**; only a small temporal 3D-CNN and a fusion head are trained.
+Phase is compared with optical flow, frame difference, and RAFT under a controlled
+protocol (only the motion representation is swapped), under synthetic corruptions,
+test-time corrections, and a non-invertible control.
+
+## Install
+```bash
+pip install -r requirements.txt
+```
+The CLIP weights are downloaded from the Hugging Face hub
+(`openai/clip-vit-large-patch14-336`); set `CLIP_MODEL=/local/path` to use a local copy.
+
+## Data
+Point the code at the datasets with environment variables (see `paths.py`):
+```bash
+export JESTER_ROOT=/path/to/20bn-jester-v1     # jpg frames
+export JESTER_DIR=/path/to/jester-csvs         # jester-v1-{train,validation,labels}.csv
+export IPN_ROOT=/path/to/ipn/frames            # IPN Hand frames
+export IPN_ANNOT_DIR=/path/to/ipn/annotations  # Annot_{Train,Test}List.txt
+export ARID_ROOT=/path/to/arid/clips_v1.5      # ARID v1.5 .mp4
+export ARID_LIST_DIR=/path/to/arid             # ARID_split1_{train,test}.txt (.avi auto-remapped to .mp4)
+```
+Jester: official validation split (test labels are not public). IPN Hand: official test
+list, no-gesture class `D0X` removed (13 classes). ARID v1.5: official split 1.
+Jester class indices follow the line order of `jester-v1-labels.csv`.
+
+Frozen features are cached under `cache/` once per (dataset, representation, condition)
+and reused across seeds. A full-Jester cache for one representation and one condition is
+a few GB (fp16).
+
+## Sanity checks (no data needed)
+```bash
+python verify_monogenic.py            # phase difference ∝ displacement, amplitude-invariant
+python verify_motion_cnn.py           # temporal CNN recovers motion direction/order (synthetic)
+python corrections.py                 # mean-based gamma correction; oracle inverse of the main corruption
+python corruptions_noninvertible.py   # the control cannot be inverted
+```
+
+## Reproducing the paper
+
+| Paper | Command | Output |
+|---|---|---|
+| Tab. 1, 3, 4, 6; Fig. 3 (full sweeps, Jester / IPN Hand) | `python full_study.py {jester,ipn} {phase,flow,framediff}` then `python aggregate_full.py {jester,ipn}` | `runs/full_{ds}_{rep}.json` |
+| ARID (Sec. 5, Supp. Tab. 5) | `python full_study.py arid {phase,flow,framediff}` | `runs/full_arid_{rep}.json` |
+| Tab. 2 (design ablation) | `python ablation_study.py` | |
+| Tab. 5 (RAFT) | `python raft_compare.py` | |
+| Channel-matched control (Sec. 4.4) | `python channel_match.py` | |
+| ViT-B/32 backbone (Sec. 4.4) | `python backbone_b32.py` | |
+| Tab. 7, feature rescaling | `python feature_rescaling.py --rep {phase,flow,framediff}` | `runs/rescaling_{rep}.json` |
+| Tab. 7, gamma correction (main corruption, s5) | `python extract_controls.py --ds jester --corruption main --sev 5 --arm {none,gamma}` then `python eval_controls.py --ds jester --rep {phase,flow,framediff} --set gamma` | `runs/controls_gamma_jester_{rep}.json` |
+| Tab. 7 / Supp. Tab. 7, non-invertible control | `python extract_controls.py --ds {jester,ipn} --corruption noninvertible --sev {3,5} --arm {none,gamma}` then `python eval_controls.py --ds {jester,ipn} --rep {…} --set noninvertible` | `runs/controls_noninvertible_{ds}_{rep}.json` |
+| Sec. 4.7, Supp. Tab. 8 (temporal-appearance baseline) | `python extract_temporal_app.py --split train --cond clean`; `python extract_temporal_app.py --split val --cond {clean,ll5_none,ll5_gamma,ll5r_none}`; `python train_temporal_app.py` | `runs/temporal_app_baseline.json` |
+| Sec. 4.7, fused model on the same 12k subset | `python train_fused_12k.py` (needs the `extract_controls.py` caches `ll5_none`, `ll5_gamma`, `ll5r_none`) | `runs/fused_12k_phase.json` |
+| Sec. 4.8, Supp. Tab. 9 (pattern / amplitude, per class) | `python mechanism_metrics.py` | `runs/mechanism_metrics.json` |
+| Sec. 4.8 (accuracy vs. motion SNR) | `python mechanism_correlation.py` | `runs/motion_snr_stats.json` |
+| Tab. 8, Supp. Tab. 3 (direction pairs) | `python dir_subset.py full` | |
+| Supp. Tab. 6 (ARID per class) | `python arid_motion_split.py` | |
+| Supp. Sec. 3, choice of read noise | `python calibrate_noise.py` | `runs/calibrate_noise.json` |
+| Supp. Sec. 3, corrected mean luminance | `python measure_gamma_mean.py` | (printed) |
+| Fig. 2 (Riesz decomposition) | `python fig_decomposition.py` | `runs/fig_riesz_decomp.png` |
+| Fig. 3 (low-light curves) | `python make_pub_figures.py` (reads `runs/full_{ds}_{rep}.json`) | `runs/fig_lowlight_pub.png` |
+| Fig. 4 (mechanism strip) | `python fig_mechanism.py` | `runs/mechanism_wide.png` |
+| Supp. Fig. 1 (more gestures) | `python visualize_mechanism_v2.py jester` | |
+
+Fig. 1 (`fig1_arch.pdf`) is a drawn diagram and is not generated by code;
+`make_pub_figures.py` also writes an earlier architecture sketch.
+
+All experiments train on **clean** data and evaluate on corrupted validation clips
+without adaptation, with 3 seeds (0, 1, 2).
+
+## Layout
+- `monogenic.py` — Riesz/monogenic extraction (FFT → Butterworth → multi-scale Log-Gabor → Riesz kernel)
+- `motion_features.py` — phase / flow / frame-difference / RAFT motion maps (+ channel-matched variants)
+- `motion_cnn.py`, `fusion_head.py` — trained temporal 3D-CNN and balanced fusion head
+- `clip_features.py` — frozen CLIP appearance encoder
+- `corruptions.py` — low light (x^γ·α, no noise), Gaussian noise, motion blur (severity 1–5)
+- `corruptions_noninvertible.py` — the non-invertible low-light control (shot/read noise, 8-bit)
+- `corrections.py` — mean-based gamma correction and the oracle inverse
+- `datasets.py`, `train_smoke.py`, `full_study.py`, `extract_fast.py` — data, training, evaluation
+- `paths.py` — dataset paths (environment-variable configurable)
+- `extract_controls.py`, `eval_controls.py`, `feature_rescaling.py` — test-time corrections and the non-invertible control
+- `extract_temporal_app.py`, `train_temporal_app.py`, `train_fused_12k.py` — appearance-only temporal baseline
+- `mechanism_metrics.py`, `mechanism_correlation.py`, `calibrate_noise.py`, `measure_gamma_mean.py` — mechanism analysis and probes
+- `fig_decomposition.py`, `fig_mechanism.py`, `make_pub_figures.py`, `visualize_mechanism_v2.py` — figures
+
+## License
+MIT (see `LICENSE`).

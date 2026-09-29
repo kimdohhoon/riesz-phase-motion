@@ -1,0 +1,30 @@
+# Cached frozen features (several GB per dataset/representation/condition)
+cache/
+*.pt
+*.pth
+*.ckpt
+
+# Experiment outputs (JSON results, figures) written by the scripts
+runs/
+
+# Datasets and model weights (downloaded separately, see README)
+data/
+clip-vit-*/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Rendered papers / figures
+*.pdf
+
+# Logs and editor/OS files
+*.log
+nohup.out
+.vscode/
+.idea/
+.DS_Store
