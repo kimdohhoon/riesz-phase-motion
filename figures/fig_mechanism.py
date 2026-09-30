@@ -14,6 +14,7 @@ from rieszmotion.motion_features import flow_maps, monogenic_maps
 from rieszmotion.corruptions import low_light
 
 from rieszmotion.paths import JESTER_ROOT as ROOT, JESTER_CSV
+from figures import save_png_pdf
 TRAIN_CSV = JESTER_CSV["train"]
 GESTURE = "Swiping Left"
 SIZE, NF, SEV = 112, 12, 5
@@ -97,7 +98,7 @@ def main():
             s.set_visible(True); s.set_color("0.5"); s.set_linewidth(0.6)
     fig.tight_layout()
     os.makedirs("runs", exist_ok=True)
-    fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
+    save_png_pdf(fig, OUTPNG, dpi=150, bbox_inches="tight")
     print(f"[viz] saved -> {OUTPNG}  (flow {fp:.2f} / phase {pp:.2f})")
 
 

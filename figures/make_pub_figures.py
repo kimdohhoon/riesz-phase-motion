@@ -10,6 +10,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+from figures import save_png_pdf
 
 FROZEN = "#cfe2f3"   # light blue  (frozen)
 FROZEN_E = "#3d6fb4"
@@ -71,7 +72,7 @@ def fig_architecture():
     ax.text(2.65, 3.75, "appearance stream", fontsize=9.5, style="italic", color="#3d6fb4", ha="center")
     ax.text(2.65, 0.18, "motion stream", fontsize=9.5, style="italic", color="#3d6fb4", ha="center")
     fig.tight_layout()
-    fig.savefig("runs/fig_architecture.png", dpi=200, bbox_inches="tight")
+    save_png_pdf(fig, "runs/fig_architecture.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
     print("saved runs/fig_architecture.png")
 
@@ -100,7 +101,7 @@ def fig_lowlight_pub():
     axes[0].set_ylabel("Top-1 accuracy")
     axes[0].legend(frameon=False, fontsize=12, loc="upper right")
     fig.tight_layout()
-    fig.savefig("runs/fig_lowlight_pub.png", dpi=200, bbox_inches="tight")
+    save_png_pdf(fig, "runs/fig_lowlight_pub.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
     print("saved runs/fig_lowlight_pub.png")
 

@@ -10,6 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from rieszmotion.monogenic import MonogenicExtractor
 from rieszmotion.corruptions import low_light
+from figures import save_png_pdf
 from figures.visualize_mechanism_v2 import (jester_ids, load_jester, flow_mag, phase_dmap,
                                     best_clip, SIZE, NF)
 
@@ -46,5 +47,5 @@ fig.suptitle("Under low-light, RGB & optical flow collapse while Riesz Δphase p
              fontsize=12, fontweight="bold")
 fig.tight_layout(rect=[0, 0, 1, 0.97])
 os.makedirs("runs/gallery", exist_ok=True)
-fig.savefig("runs/gallery/mech_combined_grid_v2.png", dpi=140); plt.close(fig)
+save_png_pdf(fig, "runs/gallery/mech_combined_grid_v2.png", dpi=140); plt.close(fig)
 print("saved runs/gallery/mech_combined_grid_v2.png")

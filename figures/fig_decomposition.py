@@ -14,6 +14,7 @@ from PIL import Image
 
 from rieszmotion.monogenic import MonogenicExtractor
 from rieszmotion.paths import JESTER_ROOT as ROOT, JESTER_CSV
+from figures import save_png_pdf
 
 TRAIN_CSV = JESTER_CSV["train"]
 SIZE, NF = 112, 12
@@ -62,7 +63,7 @@ def fig_decomp(ext):
                  "phase = local structure TYPE (edge vs flat), brightness-invariant"
                  "  ·  energy = structure strength", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.93])
-    fig.savefig("runs/fig_riesz_decomp.png", dpi=140); plt.close(fig)
+    save_png_pdf(fig, "runs/fig_riesz_decomp.png", dpi=140); plt.close(fig)
     print("saved fig_riesz_decomp.png")
 
 

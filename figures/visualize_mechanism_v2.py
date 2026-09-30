@@ -22,6 +22,7 @@ from rieszmotion.motion_features import flow_maps, monogenic_maps
 from rieszmotion.corruptions import low_light
 
 from rieszmotion.paths import JESTER_ROOT as JROOT, JESTER_CSV
+from figures import save_png_pdf
 SIZE, NF, SEV = 112, 12, 5
 JCSV = JESTER_CSV["train"]
 
@@ -106,7 +107,7 @@ def panel(ext, label, clip, path, frame=None):
     fig.suptitle(f"{label}  (frame {t})  —  motion preserved:\n"
                  f"flow {fp:.2f}  vs  phase {pp:.2f}", fontsize=11)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-    fig.savefig(path, dpi=140); plt.close(fig)
+    save_png_pdf(fig, path, dpi=140); plt.close(fig)
     return fp, pp
 
 

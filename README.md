@@ -174,9 +174,11 @@ python -m experiments.mechanism.mechanism_correlation   # accuracy vs. motion SN
 | Fig. 3, low-light curves | `python -m figures.make_pub_figures` |
 | Fig. 4, mechanism strip | `python -m figures.fig_mechanism` |
 | Supp. Fig. 1, six gestures | `python -m figures.fig_supp_mechanism_grid` |
+| Supp. Fig. 2–3, heatmap and corruption curves | `python -m figures.fig_supp_curves` |
 | Per-gesture panels | `python -m figures.visualize_mechanism_v2 jester` |
 
-Fig. 1 is a drawn diagram.
+Every figure is written as PNG and as a vector PDF (TrueType fonts), the format used in
+the paper. Fig. 1 is a drawn diagram.
 
 </details>
 
