@@ -1,4 +1,4 @@
-"""Two-stream late-fusion head (the ONLY trained part).
+"""Two-stream late-fusion head (trained, together with the temporal motion CNN).
 
 Frozen CLIP appearance vector + (training-free) motion descriptor are
 concatenated and classified by a small MLP -- mirrors MoCLIP-Lite's protocol
