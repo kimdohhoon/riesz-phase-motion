@@ -22,7 +22,7 @@ Inha University
 Image foundation models such as CLIP are motion-blind, and the usual motion streams —
 optical flow and frame difference — are intensity-based, so they degrade when the input
 does. We attach a **training-free Riesz-phase motion stream** to a frozen CLIP and learn
-only a small temporal 3D-CNN and fusion head. Because local phase is invariant to the
+only a small temporal 3D-CNN and a fusion head (appearance projection and MLP). Because local phase is invariant to the
 amplitude of local structure, the temporal phase difference Δφ survives illumination
 loss. The study is **controlled**: backbone, encoder, head, and training recipe are fixed,
 and only the motion representation is swapped.
