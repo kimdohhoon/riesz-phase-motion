@@ -73,9 +73,7 @@ def fig_corruption_grid(d, ds):
         ax.set_xticks([0] + SEV)
         ax.legend(fontsize=9)
     axes[0].set_ylabel("Top-1 accuracy")
-    fig.suptitle(f"{DNAME[ds]}: full corruption sweep "
-                 f"(phase wins low-light & noise; frame-diff best under blur)",
-                 fontweight="bold")
+    fig.suptitle(f"{DNAME[ds]}: full corruption sweep", fontweight="bold")
     save(fig, f"F2_corruption_grid_{ds}.png")
 
 
